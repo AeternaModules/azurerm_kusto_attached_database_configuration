@@ -1,3 +1,7 @@
+output "kusto_attached_database_configurations_id" {
+  description = "Map of id values across all kusto_attached_database_configurations, keyed the same as var.kusto_attached_database_configurations"
+  value       = { for k, v in azurerm_kusto_attached_database_configuration.kusto_attached_database_configurations : k => v.id }
+}
 output "kusto_attached_database_configurations_attached_database_names" {
   description = "Map of attached_database_names values across all kusto_attached_database_configurations, keyed the same as var.kusto_attached_database_configurations"
   value       = { for k, v in azurerm_kusto_attached_database_configuration.kusto_attached_database_configurations : k => v.attached_database_names }
