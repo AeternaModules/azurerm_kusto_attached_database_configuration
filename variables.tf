@@ -34,7 +34,7 @@ EOT
     cluster_resource_id                 = optional(string)
     database_name_override              = optional(string)
     database_name_prefix                = optional(string)
-    default_principal_modification_kind = optional(string) # Default: "None"
+    default_principal_modification_kind = optional(string)
     sharing = optional(object({
       external_tables_to_exclude    = optional(set(string))
       external_tables_to_include    = optional(set(string))
