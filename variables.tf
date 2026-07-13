@@ -46,61 +46,54 @@ EOT
       tables_to_include             = optional(set(string))
     }))
   }))
-  # --- Unconfirmed validation candidates, derived from azurerm_kusto_attached_database_configuration's provider source ---
-  # Not auto-enabled: either a bespoke provider validator we can't safely translate,
-  # or a path that crosses a list-typed block (needs its own for_each wrapping).
-  # Review, translate into a real validation{} block above, and delete once confirmed.
-  # path: name
-  #   source:    [from validate.DataConnectionName] regexp.MustCompile(`^[\s]+$`).MatchString(name)
-  # path: name
-  #   source:    [from validate.DataConnectionName] !regexp.MustCompile(`^[a-zA-Z0-9\s.-]+$`).MatchString(name)
-  # path: name
-  #   condition: length(value) <= 40
-  #   message:   [from validate.DataConnectionName: invalid when len(value) > 40]
-  #   source:    [from validate.DataConnectionName: invalid when len(value) > 40]
-  # path: resource_group_name
-  #   condition: length(value) <= 90
-  #   message:   [from resourcegroups.ValidateName: invalid when len(value) > 90]
-  #   source:    [from resourcegroups.ValidateName: invalid when len(value) > 90]
-  # path: resource_group_name
-  #   condition: !endswith(value, ".")
-  #   message:   [from resourcegroups.ValidateName: must not end with "."]
-  #   source:    [from resourcegroups.ValidateName: must not end with "."]
-  # path: resource_group_name
-  #   condition: length(value) != 0
-  #   message:   [from resourcegroups.ValidateName: invalid when len(value) == 0]
-  #   source:    [from resourcegroups.ValidateName: invalid when len(value) == 0]
-  # path: resource_group_name
-  #   source:    [from resourcegroups.ValidateName] !matched
-  # path: location
-  #   source:    location.EnhancedValidate: no recognizable `if ... { errors = append(...) }` pattern - read it by hand
-  # path: cluster_name
-  #   source:    [from validate.ClusterName] !regexp.MustCompile(`^[a-z][a-z0-9\-]+$`).MatchString(name)
-  # path: cluster_name
-  #   source:    [from validate.ClusterName] len(name) < 4 || len(name) > 22
-  # path: database_name
-  #   source:    validation.Any(...) - no translation rule yet, add one
-  # path: cluster_id
-  #   source:    [from commonids.ValidateKustoClusterID] !ok
-  # path: cluster_id
-  #   source:    [from commonids.ValidateKustoClusterID] err != nil
-  # path: database_name_override
-  #   source:    [from validate.DatabaseName] regexp.MustCompile(`^[\s]+$`).MatchString(name)
-  # path: database_name_override
-  #   source:    [from validate.DatabaseName] !regexp.MustCompile(`^[a-zA-Z0-9\s._-]+$`).MatchString(name)
-  # path: database_name_override
-  #   condition: length(value) <= 260
-  #   message:   [from validate.DatabaseName: invalid when len(value) > 260]
-  #   source:    [from validate.DatabaseName: invalid when len(value) > 260]
-  # path: database_name_prefix
-  #   source:    [from validate.DatabaseName] regexp.MustCompile(`^[\s]+$`).MatchString(name)
-  # path: database_name_prefix
-  #   source:    [from validate.DatabaseName] !regexp.MustCompile(`^[a-zA-Z0-9\s._-]+$`).MatchString(name)
-  # path: database_name_prefix
-  #   condition: length(value) <= 260
-  #   message:   [from validate.DatabaseName: invalid when len(value) > 260]
-  #   source:    [from validate.DatabaseName: invalid when len(value) > 260]
-  # path: default_principal_modification_kind
-  #   source:    validation.StringInSlice value list is not a literal []string - likely a generated PossibleValuesFor*() helper; resolve separately
+  validation {
+    condition = alltrue([
+      for k, v in var.kusto_attached_database_configurations : (
+        length(v.name) <= 40
+      )
+    ])
+    error_message = "[from validate.DataConnectionName: invalid when len(value) > 40]"
+  }
+  validation {
+    condition = alltrue([
+      for k, v in var.kusto_attached_database_configurations : (
+        length(v.resource_group_name) <= 90
+      )
+    ])
+    error_message = "[from resourcegroups.ValidateName: invalid when len(value) > 90]"
+  }
+  validation {
+    condition = alltrue([
+      for k, v in var.kusto_attached_database_configurations : (
+        !endswith(v.resource_group_name, ".")
+      )
+    ])
+    error_message = "[from resourcegroups.ValidateName: must not end with \".\"]"
+  }
+  validation {
+    condition = alltrue([
+      for k, v in var.kusto_attached_database_configurations : (
+        length(v.resource_group_name) != 0
+      )
+    ])
+    error_message = "[from resourcegroups.ValidateName: invalid when len(value) == 0]"
+  }
+  validation {
+    condition = alltrue([
+      for k, v in var.kusto_attached_database_configurations : (
+        v.database_name_override == null || (length(v.database_name_override) <= 260)
+      )
+    ])
+    error_message = "[from validate.DatabaseName: invalid when len(value) > 260]"
+  }
+  validation {
+    condition = alltrue([
+      for k, v in var.kusto_attached_database_configurations : (
+        v.database_name_prefix == null || (length(v.database_name_prefix) <= 260)
+      )
+    ])
+    error_message = "[from validate.DatabaseName: invalid when len(value) > 260]"
+  }
+  # Note: 14 additional provider-side validators are enforced at apply time but not mirrored as validation{} blocks here (bespoke or non-mechanically-translatable).
 }
 
