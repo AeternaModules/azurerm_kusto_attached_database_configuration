@@ -14,10 +14,6 @@ output "kusto_attached_database_configurations_cluster_name" {
   description = "Map of cluster_name values across all kusto_attached_database_configurations, keyed the same as var.kusto_attached_database_configurations"
   value       = { for k, v in azurerm_kusto_attached_database_configuration.kusto_attached_database_configurations : k => v.cluster_name if v.cluster_name != null && length(v.cluster_name) > 0 }
 }
-output "kusto_attached_database_configurations_cluster_resource_id" {
-  description = "Map of cluster_resource_id values across all kusto_attached_database_configurations, keyed the same as var.kusto_attached_database_configurations"
-  value       = { for k, v in azurerm_kusto_attached_database_configuration.kusto_attached_database_configurations : k => v.cluster_resource_id if v.cluster_resource_id != null && length(v.cluster_resource_id) > 0 }
-}
 output "kusto_attached_database_configurations_database_name" {
   description = "Map of database_name values across all kusto_attached_database_configurations, keyed the same as var.kusto_attached_database_configurations"
   value       = { for k, v in azurerm_kusto_attached_database_configuration.kusto_attached_database_configurations : k => v.database_name if v.database_name != null && length(v.database_name) > 0 }
