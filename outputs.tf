@@ -48,6 +48,6 @@ output "kusto_attached_database_configurations_resource_group_name" {
 }
 output "kusto_attached_database_configurations_sharing" {
   description = "Map of sharing values across all kusto_attached_database_configurations, keyed the same as var.kusto_attached_database_configurations"
-  value       = { for k, v in azurerm_kusto_attached_database_configuration.kusto_attached_database_configurations : k => v.sharing if v.sharing != null && length(v.sharing) > 0 }
+  value       = { for k, v in azurerm_kusto_attached_database_configuration.kusto_attached_database_configurations : k => one(v.sharing) if v.sharing != null && length(v.sharing) > 0 }
 }
 
